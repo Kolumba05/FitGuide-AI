@@ -10,7 +10,7 @@ def get_base64(bin_file):
         data = f.read()
     return base64.b64encode(data).decode()
 
-# === ЗАГРУЗКА ЛОГОТИПА ===
+#ЗАГРУЗКА ЛОГОТИПА
 logo_data = None
 for logo_name in ['logo.png', 'logo.PNG', 'Logo.png', 'logo.jpg']:
     if os.path.exists(logo_name):
@@ -20,20 +20,15 @@ for logo_name in ['logo.png', 'logo.PNG', 'Logo.png', 'logo.jpg']:
 if logo_data is None:
     print("⚠️Логотип не найден")
 
-# === ЗАГРУЗКА ТОКЕНА ИЗ env.env ===
-load_dotenv("env.env")   # Загружаем твой файл env.env
+#ЗАГРУЗКА ТОКЕНА ИЗ .env 
+load_dotenv(".env") 
 
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-if not HF_TOKEN:
-    st.error("❌ Не удалось загрузить HF_TOKEN из файла env.env")
-    st.error("Проверь, что в env.env написано: HF_TOKEN=hf_твой_токен")
-    st.stop()
-
-# Инициализация клиента
+#Инициализация клиента
 client = InferenceClient("meta-llama/Meta-Llama-3-8B-Instruct", token=HF_TOKEN)
 
-# --- СЛУЧАЙНЫЕ ПРИМЕРЫ ---
+#СЛУЧАЙНЫЕ ПРИМЕРЫ
 examples = [
     "набрать 5кг мышц к лету", "подсушиться и убрать живот к отпуску",
     "набрать массу и стать сильнее", "похудеть на 8 кг за 3 месяца",
@@ -43,11 +38,11 @@ examples = [
 
 random_example = random.choice(examples)
 
-# --- Инициализация session_state ---
+#Инициализация session_state
 if "goal" not in st.session_state:
     st.session_state.goal = ""
 
-# --- 2. ФОНЫ ---
+#2. ФОНЫ
 def get_base64(bin_file):
     try:
         with open(bin_file, 'rb') as f:
@@ -62,7 +57,7 @@ img3 = get_base64('1.png')
 
 st.set_page_config(page_title="FitGuide AI", page_icon="logo.PNG", layout="wide")
 
-# --- 3. TIFFANY СТИЛЬ ---
+#3. TIFFANY СТИЛЬ
 st.markdown(f"""
     <style>
     .logo-img {{
@@ -147,7 +142,7 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 4. ГЛАВНАЯ ЧАСТЬ ---
+#4. ГЛАВНАЯ ЧАСТЬ
 st.markdown(f"""
     <div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
         <img src="data:image/png;base64,{logo_data}" class="main-logo">
@@ -155,7 +150,7 @@ st.markdown(f"""
     <h1 style='text-align: center; color: white; margin: 0;'>FITGUIDE <span style="color:#5CE1D6">AI</span></h1>
 """, unsafe_allow_html=True)
 
-# Боковая панель
+#Боковая панель
 with st.sidebar:
     st.markdown(f"""
     <div style="text-align: center; margin-top: 20px; margin-bottom: 25px;">
@@ -184,13 +179,13 @@ st.write("---")
 col_input, col_tip = st.columns([1.2, 1])
 
 with col_input:
-    # Используем session_state для сохранения введённой цели
+    #Используем session_state для сохранения введённой цели
     goal = st.text_input("Твоя цель:", 
                         placeholder=f"Например: {random_example}",
                         value=st.session_state.goal,
                         key="goal_input")
 
-    # Обновляем session_state при изменении
+    #Обновляем session_state при изменении
     if goal != st.session_state.goal:
         st.session_state.goal = goal
 
@@ -218,7 +213,7 @@ with col_tip:
     except:
         st.markdown('<div class="tip-container"><small style="color: #5CE1D6; font-weight: bold;">💡 СОВЕТ ДНЯ</small><br><br>Регулярность важнее интенсивности. Тренируйтесь 3–4 раза в неделю.</div>', unsafe_allow_html=True)
 
-# --- 5. ГЕНЕРАЦИЯ ПЛАНА ---
+#5. ГЕНЕРАЦИЯ ПЛАНА
 if btn_generate:
     if not st.session_state.goal.strip():   # Проверяем через session_state
         st.warning("Пожалуйста, введите вашу цель!")
@@ -239,7 +234,7 @@ if btn_generate:
             except Exception as e:
                 st.error(f"Ошибка ИИ: {e}")
 
-# Футер
+#Футер
 st.markdown("""
     <div class="footer">
         FitGuide AI v1.0 | Дизайн: Звездатый | AI: Кучка китайцев
