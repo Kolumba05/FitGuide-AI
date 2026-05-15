@@ -17,9 +17,6 @@ for logo_name in ['logo.png', 'logo.PNG', 'Logo.png', 'logo.jpg']:
         logo_data = get_base64(logo_name)
         break
 
-if logo_data is None:
-    print("⚠️Логотип не найден")
-
 #ЗАГРУЗКА ТОКЕНА ИЗ .env 
 load_dotenv(".env") 
 
