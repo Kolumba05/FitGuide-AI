@@ -24,7 +24,7 @@
 ## Как запустить локально
 
 ```bash
-git clone https://github.com/Kolumba05/FitGuide-AI.git
+git clone https://github.com/Kolumba05/FitGuide-AI
 cd FitGuide-AI
 pip install -r requirements.txt
 streamlit run app.py
