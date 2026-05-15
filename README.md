@@ -12,8 +12,6 @@
 - **Язык**: Python 3.10+
 - **Контроль версий**: Git + GitHub
 
-- ⸻
-
  - ## Анализ данных
 
 **Jupyter Notebook:** [FitGuide_Анализ_данных.ipynb](fitguide.ipynb)
@@ -24,7 +22,7 @@
 ## Как запустить локально
 
 ```bash
-git clone https://github.com/Kolumba05/FitGuide-AI
+git clone https://github.com/Kolumba05/FitGuide-AI.git
 cd FitGuide-AI
 pip install -r requirements.txt
 streamlit run app.py
