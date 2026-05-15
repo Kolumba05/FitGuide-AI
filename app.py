@@ -2,17 +2,36 @@ import streamlit as st
 from huggingface_hub import InferenceClient
 import base64
 import random
+import os
+from dotenv import load_dotenv
 
 def get_base64(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
-logo_data = get_base64('logo.PNG')
+# === ЗАГРУЗКА ЛОГОТИПА ===
+logo_data = None
+for logo_name in ['logo.png', 'logo.PNG', 'Logo.png', 'logo.jpg']:
+    if os.path.exists(logo_name):
+        logo_data = get_base64(logo_name)
+        break
 
-# --- 1. НАСТРОЙКИ И ТОКЕН ---
-TOKEN = "hf_env"
-client = InferenceClient("meta-llama/Meta-Llama-3-8B-Instruct", token=TOKEN)
+if logo_data is None:
+    print("⚠️Логотип не найден")
+
+# === ЗАГРУЗКА ТОКЕНА ИЗ env.env ===
+load_dotenv("env.env")   # Загружаем твой файл env.env
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+if not HF_TOKEN:
+    st.error("❌ Не удалось загрузить HF_TOKEN из файла env.env")
+    st.error("Проверь, что в env.env написано: HF_TOKEN=hf_твой_токен")
+    st.stop()
+
+# Инициализация клиента
+client = InferenceClient("meta-llama/Meta-Llama-3-8B-Instruct", token=HF_TOKEN)
 
 # --- СЛУЧАЙНЫЕ ПРИМЕРЫ ---
 examples = [
