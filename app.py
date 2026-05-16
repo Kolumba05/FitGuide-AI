@@ -5,17 +5,35 @@ import random
 import os
 from dotenv import load_dotenv
 
+#УЛУЧШЕННАЯ ФУНКЦИЯ ЗАГРУЗКИ
 def get_base64(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
+    try:
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except Exception as e:
+        print(f"Ошибка чтения файла {bin_file}: {e}")
+        return ""
+    
 #ЗАГРУЗКА ЛОГОТИПА
 logo_data = None
-for logo_name in ['logo.png', 'logo.PNG', 'Logo.png', 'logo.jpg']:
+
+logo_names = ['logo.png', 'logo.PNG', 'Logo.png', 'logo.jpg', 'logo.jpeg']
+
+print("Поиск логотипа...")
+
+for logo_name in logo_names:
     if os.path.exists(logo_name):
         logo_data = get_base64(logo_name)
-        break
+        if logo_data:  # если успешно загрузилось
+            print(f"Логотип успешно загружен: {logo_name}")
+            break
+    else:
+        print(f"   Не найден: {logo_name}")
+
+if logo_data is None or logo_data == "":
+    print("Логотип не найден.")
+    logo_data = ""
 
 #ЗАГРУЗКА ТОКЕНА ИЗ .env 
 load_dotenv(".env") 
@@ -52,7 +70,7 @@ img1 = get_base64('6.jpg')
 img2 = get_base64('4.png')
 img3 = get_base64('1.png')
 
-st.set_page_config(page_title="FitGuide AI", page_icon="logo.PNG", layout="wide")
+st.set_page_config(page_title="FitGuide AI", page_icon="logo.png", layout="wide")
 
 #3. TIFFANY СТИЛЬ
 st.markdown(f"""
@@ -192,24 +210,43 @@ with col_input:
 with col_tip:
     try:
         tip_prompt = """Дай один короткий, полезный и грамотный фитнес-совет на русском языке. 
-        Максимум 2 предложения. Пиши нормально, без ошибок."""
-        
+        Максимум 2 предложения. 
+        Пиши чистым правильным русским языком, без markdown, без специальных символов и артефактов."""
+
         t_res = client.chat_completion(
             messages=[{"role": "user", "content": tip_prompt}], 
-            max_tokens=120,
-            temperature=0.7
+            max_tokens=150,
+            temperature=0.75
         )
-        t_text = t_res.choices[0].message.content if hasattr(t_res, 'choices') else t_res['choices'][0]['message']['content']
+        
+        # Извлечение текста
+        if hasattr(t_res, 'choices'):
+            t_text = t_res.choices[0].message.content
+        else:
+            t_text = t_res['choices'][0]['message']['content']
+        
+        #💡 СОВЕТ ДНЯ
+        import unicodedata
+        t_text = t_text.strip()
+        t_text = unicodedata.normalize('NFKC', t_text)         
+        t_text = t_text.replace('\u200b', '')                   
+        t_text = t_text.replace('\xa0', ' ')                   
+        t_text = ''.join(c for c in t_text if ord(c) < 0xF0000) 
         
         st.markdown(f"""
         <div class="tip-container">
             <small style="color: #5CE1D6; font-weight: bold;">💡 СОВЕТ ДНЯ</small><br><br>
             <div style="font-size: 15.5px; line-height: 1.6;">{t_text}</div>
         </div>
-    """, unsafe_allow_html=True)
-    except:
-        st.markdown('<div class="tip-container"><small style="color: #5CE1D6; font-weight: bold;">💡 СОВЕТ ДНЯ</small><br><br>Регулярность важнее интенсивности. Тренируйтесь 3–4 раза в неделю.</div>', unsafe_allow_html=True)
-
+        """, unsafe_allow_html=True)
+        
+    except Exception as e:
+        st.markdown('''
+        <div class="tip-container">
+            <small style="color: #5CE1D6; font-weight: bold;">💡 СОВЕТ ДНЯ</small><br><br>
+            Регулярность важнее интенсивности. Тренируйтесь 3–4 раза в неделю.
+        </div>
+        ''', unsafe_allow_html=True)
 #5. ГЕНЕРАЦИЯ ПЛАНА
 if btn_generate:
     if not st.session_state.goal.strip():   # Проверяем через session_state
