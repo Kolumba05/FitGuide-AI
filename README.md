@@ -21,9 +21,4 @@
 
 ## Как запустить локально
 
-```bash
-git clone https://github.com/Kolumba05/FitGuide-AI.git
-cd FitGuide-AI
-pip install -r requirements.txt
-streamlit run app.py
-
+Скачайте ZIP файл и распакуйте, запустите app.py через VS Code
