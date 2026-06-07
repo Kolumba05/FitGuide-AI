@@ -5,38 +5,72 @@ import random
 import os
 from dotenv import load_dotenv
 
-# 1. ЕДИНАЯ ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЛЯ ПУТЕЙ И BASE64
+#УЛУЧШЕННАЯ ФУНКЦИЯ ЗАГРУЗКИ
 def get_base64(bin_file):
-    # Получаем абсолютный путь к папке, где лежит сам app.py
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    full_path = os.path.join(current_dir, bin_file)
-    
     try:
-        with open(full_path, 'rb') as f:
+        with open(bin_file, 'rb') as f:
             data = f.read()
         return base64.b64encode(data).decode()
     except Exception as e:
         print(f"Ошибка чтения файла {bin_file}: {e}")
         return ""
+    
+#ЗАГРУЗКА ЛОГОТИПА
+logo_data = None
 
-# 2. ЗАГРУЗКА ЛОГОТИПА И ФОНОВ (с автоматическим поиском путей)
-current_dir = os.path.dirname(os.path.abspath(__file__))
-logo_data = get_base64(os.path.join(current_dir, 'logo.png'))
+logo_names = ['logo.png', 'logo.PNG', 'Logo.png', 'logo.jpg', 'logo.jpeg']
 
-# 3. ЗАГРУЗКА ТОКЕНА ИЗ .env
-load_dotenv(os.path.join(current_dir, ".env"))
+print("Поиск логотипа...")
+
+for logo_name in logo_names:
+    if os.path.exists(logo_name):
+        logo_data = get_base64(logo_name)
+        if logo_data:  # если успешно загрузилось
+            print(f"Логотип успешно загружен: {logo_name}")
+            break
+    else:
+        print(f"   Не найден: {logo_name}")
+
+if logo_data is None or logo_data == "":
+    print("Логотип не найден.")
+    logo_data = ""
+
+#ЗАГРУЗКА ТОКЕНА ИЗ .env 
+load_dotenv(".env") 
+
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-# Инициализация клиента
+#Инициализация клиента
 client = InferenceClient("meta-llama/Meta-Llama-3-8B-Instruct", token=HF_TOKEN)
 
-# 4. ЗАГРУЗКА ФОНОВЫХ КАРТИНОК
+#СЛУЧАЙНЫЕ ПРИМЕРЫ
+examples = [
+    "набрать 5кг мышц к лету", "подсушиться и убрать живот к отпуску",
+    "набрать массу и стать сильнее", "похудеть на 8 кг за 3 месяца",
+    "подготовиться к лету и улучшить рельеф", "увеличить силу и мышечную массу",
+    "сбросить вес и улучшить выносливость", "привести тело в тонус после перерыва"
+]
+
+random_example = random.choice(examples)
+
+#Инициализация session_state
+if "goal" not in st.session_state:
+    st.session_state.goal = ""
+
+#2. ФОНЫ
+def get_base64(bin_file):
+    try:
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except:
+        return ""
+
 img1 = get_base64('6.jpg')
 img2 = get_base64('4.png')
 img3 = get_base64('1.png')
 
-st.set_page_config(page_title="FitGuide AI", page_icon=os.path.join(current_dir, "logo.png"), layout="wide")
-
+st.set_page_config(page_title="FitGuide AI", page_icon="logo.png", layout="wide")
 
 #3. TIFFANY СТИЛЬ
 st.markdown(f"""
